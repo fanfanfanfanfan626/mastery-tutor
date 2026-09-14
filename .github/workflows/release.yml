@@ -35,7 +35,7 @@ jobs:
         run: |
           python quality/build_release.py --kind core --output work/release-candidates/core.zip
           python quality/build_release.py --kind codex --output work/release-candidates/codex.zip
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: release-candidate-${{ runner.os }}
           path: work/release-candidates/*.zip
