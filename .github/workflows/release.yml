@@ -95,11 +95,11 @@ jobs:
           python quality/release_audit.py archive "work/mastery-tutor-${{ steps.version.outputs.value }}-core.zip" --kind core --git-ref HEAD --expected-version "${{ steps.version.outputs.value }}"
           python quality/release_audit.py archive "work/mastery-tutor-${{ steps.version.outputs.value }}-codex.zip" --kind codex --git-ref HEAD --expected-version "${{ steps.version.outputs.value }}"
       - name: Attest core archive
-        uses: actions/attest-build-provenance@v2
+        uses: actions/attest-build-provenance@v4
         with:
           subject-path: work/mastery-tutor-${{ steps.version.outputs.value }}-core.zip
       - name: Attest Codex archive
-        uses: actions/attest-build-provenance@v2
+        uses: actions/attest-build-provenance@v4
         with:
           subject-path: work/mastery-tutor-${{ steps.version.outputs.value }}-codex.zip
       - name: Create GitHub Release
