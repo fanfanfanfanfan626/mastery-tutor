@@ -2,8 +2,10 @@ from __future__ import annotations
 
 import json
 import hashlib
+import re
 import struct
 import unittest
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 
@@ -124,6 +126,51 @@ class MarketingContractTests(unittest.TestCase):
             "CODE_OF_CONDUCT.md",
         ]:
             self.assertTrue((ROOT / relative).is_file(), f"missing maintainer entrypoint: {relative}")
+
+    def test_public_discovery_files_are_consistent_and_parseable(self) -> None:
+        manifest = json.loads(
+            (ROOT / "plugins" / "mastery-tutor" / ".codex-plugin" / "plugin.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        repository_url = manifest["repository"]
+        owner = repository_url.removeprefix("https://github.com/").split("/", 1)[0]
+        site_url = f"https://{owner}.github.io/mastery-tutor/"
+        html = (ROOT / "docs" / "index.html").read_text(encoding="utf-8")
+        self.assertIn(f'<link rel="canonical" href="{site_url}">', html)
+        self.assertIn(f'<meta property="og:url" content="{site_url}">', html)
+        self.assertIn('<meta name="description" content="Mastery Tutor', html)
+        self.assertIn('<meta name="twitter:card" content="summary_large_image">', html)
+        self.assertIn('<meta name="twitter:image"', html)
+        blocks = re.findall(
+            r'<script type="application/ld\+json">\s*(.*?)\s*</script>',
+            html,
+            flags=re.DOTALL,
+        )
+        self.assertEqual(len(blocks), 1)
+        structured = json.loads(blocks[0])
+        self.assertEqual(structured["name"], "Mastery Tutor")
+        self.assertEqual(structured["codeRepository"], repository_url)
+        self.assertEqual(structured["softwareVersion"], "0.5.0 release candidate")
+
+        robots = (ROOT / "docs" / "robots.txt").read_text(encoding="utf-8")
+        self.assertIn("User-agent: *", robots)
+        self.assertIn(f"Sitemap: {site_url}sitemap.xml", robots)
+        sitemap = ET.parse(ROOT / "docs" / "sitemap.xml")
+        namespace = {"s": "http://www.sitemaps.org/schemas/sitemap/0.9"}
+        urls = [node.text for node in sitemap.findall("s:url/s:loc", namespace)]
+        self.assertEqual(urls, [site_url])
+
+        llms = (ROOT / "docs" / "llms.txt").read_text(encoding="utf-8")
+        for marker in [
+            "Source version: 0.5.0 release candidate",
+            "Latest tagged release: 0.4.1",
+            "mastery-coach",
+            "mastery-tool-creator",
+            "Automated tests do not prove learning outcomes",
+        ]:
+            self.assertIn(marker, llms)
+        self.assertTrue((ROOT / "docs" / ".nojekyll").is_file())
 
     def test_public_copy_names_the_single_bundled_curriculum_boundary(self) -> None:
         readme = (ROOT / "README.md").read_text(encoding="utf-8").lower()

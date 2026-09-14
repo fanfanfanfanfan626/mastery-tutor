@@ -139,3 +139,5 @@ dedicated issue form so compatibility claims stay reproducible.
 
 - [Idea Council](https://github.com/fanfanfanfanfan626/challenge-and-refine-ideas) helps an agent clarify and stress-test ideas before implementation.
 - [Persistent AI Studio](https://github.com/fanfanfanfanfan626/orchestrate-agent-organization) governs authorized multi-agent product work across tasks.
+- [Skill Governor](https://github.com/fanfanfanfanfan626/skill-governor) audits and maintains overlapping Agent Skill libraries.
+- [Advanced Semiconductor Packaging Course](https://github.com/fanfanfanfanfan626/advanced-semiconductor-packaging-course) is a free Chinese-language, 40-lesson open course.
