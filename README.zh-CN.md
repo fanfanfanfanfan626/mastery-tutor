@@ -115,3 +115,5 @@ Codex 会安装一个完整的 `mastery-tutor` 插件；其他兼容宿主会安
 
 - [Idea Council](https://github.com/fanfanfanfanfan626/challenge-and-refine-ideas)：在实施前澄清并反证想法。
 - [Persistent AI Studio](https://github.com/fanfanfanfanfan626/orchestrate-agent-organization)：治理跨任务、已经获得授权的多 Agent 产品工作。
+- [Skill Governor](https://github.com/fanfanfanfanfan626/skill-governor)：审计和维护存在重叠的 Agent Skill 库。
+- [半导体与先进封装课程](https://github.com/fanfanfanfanfan626/advanced-semiconductor-packaging-course)：免费开源的 40 课中文课程。

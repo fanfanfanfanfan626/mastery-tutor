@@ -18,10 +18,10 @@ jobs:
       PYTHONUTF8: "1"
       MASTERY_HOME: ${{ github.workspace }}/work/ci-mastery-home
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
       - id: version
@@ -76,8 +76,8 @@ jobs:
       PYTHONUTF8: "1"
       MASTERY_HOME: ${{ github.workspace }}/work/ci-mastery-home
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python }}
       - name: Verify generated adapters
@@ -91,8 +91,8 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
       - id: version

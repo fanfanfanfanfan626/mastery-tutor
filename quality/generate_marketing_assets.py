@@ -155,7 +155,7 @@ def social_preview() -> Image.Image:
     )
     draw.text(
         (80, 522),
-        "github.com/fanfanfanfan626/mastery-tutor",
+        "github.com/fanfanfanfanfan626/mastery-tutor",
         font=font(23),
         fill="#8792AB",
     )
