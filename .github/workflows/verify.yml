@@ -99,7 +99,7 @@ jobs:
         name: Read release version
         shell: bash
         run: echo "value=$(tr -d '\r\n' < VERSION)" >> "$GITHUB_OUTPUT"
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           pattern: release-*
           path: work/release-candidates
