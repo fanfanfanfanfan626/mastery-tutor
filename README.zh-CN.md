@@ -8,11 +8,11 @@
 它是一个由两个 Skill 协作的完整产品：`mastery-coach` 负责教学和学习记录，
 `mastery-tool-creator` 只在课程确实需要时创建交互实验。
 
-[产品网页](https://fanfanfanfanfan626.github.io/mastery-tutor/) · [English](README.md) · [AI 一句话安装](AI_INSTALL.md) · [手动安装](INSTALL.md) ·
+[先体验一小课，无需安装](https://fanfanfanfanfan626.github.io/mastery-tutor/demo.html) · [English](README.md) · [AI 一句话安装](AI_INSTALL.md) · [手动安装](INSTALL.md) ·
 [兼容状态](COMPATIBILITY.md)
 
-> **发布状态：** `main` 是下一版候选代码。当前公开安装包仍使用旧的 Mastery Learning 身份；
-> 在 E2 证据门禁与标签发布流程通过前，不把 `main` 描述成已经正式发布的完整适配器。
+> **发布状态：** `main` 是下一版候选代码。工程预览通过验证后才会出现在[发布页](https://github.com/fanfanfanfanfan626/mastery-tutor/releases)；E2 真实对话验证仍待完成。
+> 稳定版仍为旧身份 Mastery Learning 的 v0.4.1。工程预览不是稳定版，也不证明真实教学效果。
 
 ![Mastery Tutor 真实反馈课堂](docs/assets/classroom-feedback-real.png)
 

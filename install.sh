@@ -2,6 +2,7 @@
 set -eu
 
 CHECK_ONLY=0
+USE_CLI_INSTALL=0
 CODEX_COMMAND=codex
 CLI_DOCUMENTATION_URL=https://learn.chatgpt.com/docs/codex/cli
 
@@ -36,6 +37,10 @@ while [ "$#" -gt 0 ]; do
     case "$1" in
         --check-only)
             CHECK_ONLY=1
+            shift
+            ;;
+        --use-cli-install)
+            USE_CLI_INSTALL=1
             shift
             ;;
         --codex)
@@ -114,10 +119,10 @@ case "$REPOSITORY_ROOT/" in
         ;;
 esac
 
-CODEX_HOME=${CODEX_HOME:-"$HOME/.codex"}
+MASTERY_CODEX_HOME=${CODEX_HOME:-"$HOME/.codex"}
 LEGACY_SKILLS=""
 for skill in mastery-coach mastery-tool-creator; do
-    path=$CODEX_HOME/skills/$skill
+    path=$MASTERY_CODEX_HOME/skills/$skill
     if [ -d "$path" ]; then
         LEGACY_SKILLS="${LEGACY_SKILLS}${path}
 "
@@ -158,25 +163,54 @@ case "$EXISTING_PLUGIN_LIST" in
         ;;
 esac
 
-if ! "$CODEX_COMMAND" plugin marketplace add "$REPOSITORY_ROOT"; then
-    echo "Codex marketplace registration failed. Do not use skill-installer as a fallback." >&2
+read_marketplace_source() {
+    "$CODEX_COMMAND" plugin marketplace list > "$MASTERY_LIST_TEMP" || return 1
+    awk '$1 == "mastery-tutor" { sub(/^[[:space:]]*mastery-tutor[[:space:]]+/, ""); sub(/[[:space:]]+$/, ""); print; exit }' "$MASTERY_LIST_TEMP"
+}
+MASTERY_LIST_TEMP=$(mktemp)
+trap 'rm -f "$MASTERY_LIST_TEMP"' EXIT HUP INT TERM
+SOURCE=$(read_marketplace_source) || { echo 'Could not inspect marketplace sources.' >&2; exit 1; }
+if [ -n "$SOURCE" ] && [ "$SOURCE" != "$REPOSITORY_ROOT" ]; then
+    echo "MASTERY_BLOCKER=marketplace-source-conflict" >&2
+    printf 'Registered: %s\nRequested: %s\nNo source was replaced. Ask the user which source to keep.\n' "$SOURCE" "$REPOSITORY_ROOT" >&2
     exit 1
 fi
+if [ -z "$SOURCE" ]; then
+    "$CODEX_COMMAND" plugin marketplace add "$REPOSITORY_ROOT" || exit 1
+    SOURCE=$(read_marketplace_source) || exit 1
+    if [ "$SOURCE" != "$REPOSITORY_ROOT" ]; then
+        echo 'Registration may be present, but exact-source verification failed. Inspect codex plugin marketplace list before retrying. No plugin installation was attempted.' >&2
+        exit 1
+    fi
+fi
+OBSERVED=$("$CODEX_COMMAND" plugin list --marketplace mastery-tutor) || exit 1
+if printf '%s\n' "$OBSERVED" | grep -Eq '^[[:space:]]*mastery-tutor@mastery-tutor[[:space:]]+installed,[[:space:]]*enabled([[:space:]]|$)'; then
+    echo 'MASTERY_INSTALL_STATUS=installed'
+    echo 'Installed and enabled. No configuration change needed. Open a new Codex task.'
+    exit 0
+fi
+if [ "$USE_CLI_INSTALL" -ne 1 ]; then
+    echo 'MASTERY_INSTALL_STATUS=registered-awaiting-ui-install'
+    echo 'Open the desktop Plugins Directory, install and enable Mastery Tutor from its marketplace, then rerun this script to verify. Registration is not installation.'
+    echo 'Official flow: https://developers.openai.com/plugins/build/plugins'
+    echo 'If explicitly requested and supported by this CLI, --use-cli-install enables the compatibility installation path.'
+    exit 2
+fi
+ADD_HELP=$("$CODEX_COMMAND" plugin add --help) || exit 1
+printf '%s\n' "$ADD_HELP" | grep -Fq 'Usage: codex plugin add' || { echo 'Use the Plugins Directory; this CLI has no compatible plugin add command.' >&2; exit 1; }
 if ! "$CODEX_COMMAND" plugin add "mastery-tutor@mastery-tutor"; then
     echo "Codex plugin installation failed. Do not copy a nested Skill as a fallback." >&2
     exit 1
 fi
 
-if ! PLUGIN_LIST=$("$CODEX_COMMAND" plugin list 2>&1); then
+if ! PLUGIN_LIST=$("$CODEX_COMMAND" plugin list --marketplace mastery-tutor 2>&1); then
     echo "The plugin command completed, but 'codex plugin list' failed." >&2
     exit 1
 fi
-case "$PLUGIN_LIST" in
-    *mastery-tutor*) ;;
-    *)
+if ! printf '%s\n' "$PLUGIN_LIST" | grep -Eq '^[[:space:]]*mastery-tutor@mastery-tutor[[:space:]]+installed,[[:space:]]*enabled([[:space:]]|$)'; then
         echo "Installation verification failed: 'codex plugin list' did not contain mastery-tutor." >&2
         exit 1
-        ;;
-esac
+fi
 printf '%s\n' "$PLUGIN_LIST"
+echo 'MASTERY_INSTALL_STATUS=installed'
 echo "Installed and verified mastery-tutor as a complete Codex plugin. Open a new Codex task to load both bundled Skills."

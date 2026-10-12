@@ -2,6 +2,8 @@
 
 ## 0.5.0 — unreleased
 
+- Engineering preview channel keeps stable E2 evidence requirements intact and publishes audited, reproducible trial archives separately from stable releases.
+- Added a no-install, no-tracking teaching sample with retry feedback and a transfer check, plus bilingual first-use feedback entry points.
 - Renamed the product and Codex plugin identity to **Mastery Tutor** / `mastery-tutor` while
   preserving the two Skill IDs, `.mastery/` learner workspaces, and legacy registry discovery.
 - Promoted `skills/mastery-coach` and `skills/mastery-tool-creator` to the only canonical sources;

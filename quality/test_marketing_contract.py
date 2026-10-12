@@ -159,12 +159,12 @@ class MarketingContractTests(unittest.TestCase):
         sitemap = ET.parse(ROOT / "docs" / "sitemap.xml")
         namespace = {"s": "http://www.sitemaps.org/schemas/sitemap/0.9"}
         urls = [node.text for node in sitemap.findall("s:url/s:loc", namespace)]
-        self.assertEqual(urls, [site_url])
+        self.assertEqual(urls, [site_url, site_url + "demo.html"])
 
         llms = (ROOT / "docs" / "llms.txt").read_text(encoding="utf-8")
         for marker in [
             "Source version: 0.5.0 release candidate",
-            "Latest tagged release: 0.4.1",
+            "Latest stable release: 0.4.1",
             "mastery-coach",
             "mastery-tool-creator",
             "Automated tests do not prove learning outcomes",

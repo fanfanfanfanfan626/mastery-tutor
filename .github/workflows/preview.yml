@@ -1,0 +1,101 @@
+name: engineering-preview
+
+on:
+  workflow_dispatch:
+    inputs:
+      sequence:
+        description: 'Positive preview sequence (immutable tag)'
+        required: true
+        default: '1'
+
+permissions:
+  contents: write
+  id-token: write
+  attestations: write
+
+concurrency:
+  group: engineering-preview
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    env:
+      PYTHONUTF8: '1'
+      MASTERY_HOME: ${{ github.workspace }}/work/preview-home
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+      - name: Validate source and deterministic behavior (not E2)
+        run: |
+          python quality/build_adapters.py --check
+          python skills/mastery-coach/scripts/curriculum_audit.py
+          python quality/eval_audit.py suite quality/evals/plugin-evals.json
+          python -m unittest discover -s quality -p "test_*.py" -q
+          node quality/test_demo.cjs
+      - name: Build and audit candidates
+        run: |
+          python quality/build_release.py --kind core --output work/candidates/core.zip
+          python quality/build_release.py --kind codex --output work/candidates/codex.zip
+          python quality/release_audit.py archive work/candidates/core.zip --kind core --git-ref HEAD
+          python quality/release_audit.py archive work/candidates/codex.zip --kind codex --git-ref HEAD
+      - uses: actions/upload-artifact@v4
+        with:
+          name: preview-${{ runner.os }}
+          path: work/candidates/*.zip
+          if-no-files-found: error
+
+  publish:
+    needs: verify
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: preview-*
+          path: work/candidates
+      - name: Require identical three-platform archives
+        run: |
+          python quality/release_audit.py compare work/candidates/preview-Linux/core.zip work/candidates/preview-Windows/core.zip work/candidates/preview-macOS/core.zip
+          python quality/release_audit.py compare work/candidates/preview-Linux/codex.zip work/candidates/preview-Windows/codex.zip work/candidates/preview-macOS/codex.zip
+      - name: Prepare immutable preview
+        id: preview
+        shell: bash
+        env:
+          PREVIEW_SEQUENCE: ${{ inputs.sequence }}
+        run: |
+          [[ "$PREVIEW_SEQUENCE" =~ ^[1-9][0-9]*$ ]]
+          version="$(tr -d '\r\n' < VERSION)"
+          tag="preview-${version}.${PREVIEW_SEQUENCE}"
+          if git show-ref --verify --quiet "refs/tags/$tag"; then echo 'Preview tag already exists; choose a new sequence.'; exit 1; fi
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          for kind in core codex; do
+            python quality/build_release.py --kind "$kind" --output "work/mastery-tutor-${tag}-${kind}.zip" --checksum-output "work/mastery-tutor-${tag}-${kind}.zip.sha256"
+            python quality/release_audit.py archive "work/mastery-tutor-${tag}-${kind}.zip" --kind "$kind" --git-ref HEAD --expected-version "$version"
+          done
+      - uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: work/mastery-tutor-preview-*.zip
+      - name: Publish engineering preview, never latest stable
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PREVIEW_TAG: ${{ steps.preview.outputs.tag }}
+        shell: bash
+        run: |
+          git tag "$PREVIEW_TAG" "$GITHUB_SHA"
+          git push origin "$PREVIEW_TAG"
+          gh release create "$PREVIEW_TAG" --verify-tag --prerelease --latest=false --title "Mastery Tutor $PREVIEW_TAG — Engineering preview / E2 pending" --notes-file docs/ENGINEERING_PREVIEW.md work/mastery-tutor-preview-*.zip work/mastery-tutor-preview-*.sha256

@@ -65,7 +65,7 @@ class InstallContractTests(unittest.TestCase):
         self.assertEqual(entry["source"], {"source": "local", "path": "./plugins/mastery-tutor"})
         self.assertEqual(manifest["skills"], "./skills/")
 
-    def test_platform_installer_invokes_only_the_plugin_flow(self) -> None:
+    def test_platform_installer_is_idempotent_for_installed_exact_source(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             temporary_path = Path(temporary)
             capture = temporary_path / "calls.txt"
@@ -81,7 +81,8 @@ class InstallContractTests(unittest.TestCase):
                     '@echo off\r\n'
                     '>>"%MASTERY_INSTALL_CAPTURE%" echo %*\r\n'
                     'if "%~1"=="--version" echo codex 0.test\r\n'
-                    'if "%~1"=="plugin" if "%~2"=="list" echo mastery-tutor installed enabled\r\n'
+                    'if "%~1"=="plugin" if "%~2"=="list" echo mastery-tutor@mastery-tutor installed, enabled\r\n'
+                    f'if "%~2 %~3"=="marketplace list" echo mastery-tutor {ROOT}\r\n'
                     'exit /b 0\r\n',
                     encoding="utf-8",
                 )
@@ -95,7 +96,8 @@ class InstallContractTests(unittest.TestCase):
                     '#!/bin/sh\n'
                     'printf \'%s\\n\' "$*" >> "$MASTERY_INSTALL_CAPTURE"\n'
                     '[ "$1" = "--version" ] && echo "codex 0.test"\n'
-                    '[ "$1" = "plugin" ] && [ "$2" = "list" ] && echo "mastery-tutor installed enabled"\n'
+                    '[ "$1" = "plugin" ] && [ "$2" = "list" ] && echo "mastery-tutor@mastery-tutor installed, enabled"\n'
+                    f'[ "$2 $3" = "marketplace list" ] && echo "mastery-tutor {ROOT}"\n'
                     'exit 0\n',
                     encoding="utf-8",
                 )
@@ -117,9 +119,8 @@ class InstallContractTests(unittest.TestCase):
             self.assertEqual(calls, [
                 "--version",
                 "plugin list",
-                f"plugin marketplace add {ROOT}",
-                "plugin add mastery-tutor@mastery-tutor",
-                "plugin list",
+                "plugin marketplace list",
+                "plugin list --marketplace mastery-tutor",
             ])
             self.assertNotIn("skill-installer", "\n".join(calls))
 
@@ -139,7 +140,8 @@ class InstallContractTests(unittest.TestCase):
                 '>>"%MASTERY_INSTALL_CAPTURE%" echo %*\r\n'
                 '1>&2 echo WARNING: advisory cleanup message\r\n'
                 'if "%~1"=="--version" echo codex-cli 0.test\r\n'
-                'if "%~1"=="plugin" if "%~2"=="list" echo mastery-tutor installed enabled\r\n'
+                'if "%~1"=="plugin" if "%~2"=="list" echo mastery-tutor@mastery-tutor installed, enabled\r\n'
+                f'if "%~2 %~3"=="marketplace list" echo mastery-tutor {ROOT}\r\n'
                 'exit /b 0\r\n',
                 encoding="utf-8",
             )
@@ -162,9 +164,8 @@ class InstallContractTests(unittest.TestCase):
                 [
                     "--version",
                     "plugin list",
-                    f"plugin marketplace add {ROOT}",
-                    "plugin add mastery-tutor@mastery-tutor",
-                    "plugin list",
+                    "plugin marketplace list",
+                    "plugin list --marketplace mastery-tutor",
                 ],
             )
 

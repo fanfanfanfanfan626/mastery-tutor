@@ -12,11 +12,17 @@ Do not claim success until all are observed:
 2. no standalone `mastery-coach` or `mastery-tool-creator` conflict remains under the Codex Skills
    directory;
 3. no old `mastery-learning` plugin identity remains installed;
-4. `codex plugin add mastery-tutor@mastery-tutor` exits successfully;
-5. `codex plugin list` contains `mastery-tutor`;
+4. `codex plugin marketplace list` resolves `mastery-tutor` to the exact selected repository;
+5. desktop installation is complete and `codex plugin list --marketplace mastery-tutor` reports `mastery-tutor@mastery-tutor` as `installed, enabled`;
 6. the user is told to start a new Codex task.
 
 The root installer enforces these checks. It never deletes learner workspaces or old Skills.
+
+The documented default is marketplace registration, followed by installation in the desktop **Plugins Directory**. Restart the desktop app if the new marketplace is not visible. An installer exit code of 2 with `MASTERY_INSTALL_STATUS=registered-awaiting-ui-install` means action is required, not success. Install and enable Mastery Tutor in that directory, then rerun the installer to verify. See [current official plugin instructions](https://developers.openai.com/plugins/build/plugins).
+
+Registration is idempotent for the exact same source. A same-name marketplace from another location blocks with `marketplace-source-conflict`; nothing is replaced or upgraded automatically.
+
+For CLI versions that expose `codex plugin add --help`, an explicitly requested compatibility route is available: pass `-UseCliInstall` on Windows or `--use-cli-install` on macOS/Linux. Only then may the installer run `codex plugin add mastery-tutor@mastery-tutor`. Already installed, enabled plugins are not installed again. Installation status is not E2 teaching evidence.
 
 ## Windows
 

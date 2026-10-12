@@ -17,8 +17,9 @@ the current host and follow the linked host-specific instructions. Do not descri
 preflight, or partial Skill copy as a successful installation.
 
 For Codex, read `docs/install/codex.md`, keep the repository or Release in a stable path, run the
-root installer, and require successful `codex plugin add mastery-tutor@mastery-tutor` plus a
-`codex plugin list` entry before claiming success. Do not use `skill-installer` for the Codex
+root installer. The default registers a marketplace for desktop Plugins Directory installation.
+`registered-awaiting-ui-install` is action required, not success. Require `codex plugin list --marketplace mastery-tutor`
+to report `mastery-tutor@mastery-tutor` installed and enabled before claiming success. The compatibility `plugin add` path requires explicit opt-in and a runtime help probe. Never automatically replace a conflicting marketplace source. Do not use `skill-installer` for the Codex
 adapter. If an old `mastery-learning` plugin or standalone Skill copy is found, show the exact
 conflict and follow `MIGRATION.md`; never delete learner files or legacy installs silently.
 

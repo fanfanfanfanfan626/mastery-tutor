@@ -11,8 +11,7 @@ prompt. It always installs both canonical Skills listed in `agent-skill-set.json
 Identify the AI host before changing configuration. Do not choose a host from repository marketing
 copy or from an executable found on disk.
 
-- **Codex:** read and follow `docs/install/codex.md`. Install the complete generated plugin, not
-  standalone Skill copies.
+- **Codex:** read and follow `docs/install/codex.md`. Register the complete generated plugin marketplace, then install and enable it in the desktop Plugins Directory. `registered-awaiting-ui-install` is not success. The compatibility CLI install requires explicit opt-in and a successful runtime help probe. Never replace a same-name marketplace source automatically or install standalone Skill copies.
 - **Claude Code:** read and follow `docs/install/claude-code.md`.
 - **GitHub Copilot:** read and follow `docs/install/github-copilot.md`.
 - **OpenCode:** read `docs/install/opencode.md`. It is planned, not verified; do not invent an
