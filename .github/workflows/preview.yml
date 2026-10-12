@@ -49,7 +49,7 @@ jobs:
           python quality/build_release.py --kind codex --output work/candidates/codex.zip
           python quality/release_audit.py archive work/candidates/core.zip --kind core --git-ref HEAD
           python quality/release_audit.py archive work/candidates/codex.zip --kind codex --git-ref HEAD
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: preview-${{ runner.os }}
           path: work/candidates/*.zip
