@@ -18,6 +18,7 @@ COMMON_FILES = [
     Path(".gitignore"),
     Path("VERSION"),
     Path("LICENSE"),
+    Path("install_transaction.py"),
     Path("README.md"),
     Path("README.zh-CN.md"),
     Path("CHANGELOG.md"),

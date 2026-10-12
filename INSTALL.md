@@ -37,3 +37,26 @@ Use `--project-root <absolute-path>` for another project or `--host custom --tar
 <absolute-skills-directory>` for a documented compatible host. Existing differing Skill directories
 produce a conflict. Use `--replace` only after reviewing the paths; replacement keeps a recoverable
 sibling backup.
+
+Close the AI host before installing or replacing the pair. The two directories cannot switch
+atomically for a running host. Modifying commands use an advisory lock and a small transaction
+journal. After an interrupted replacement, rerun the same installer: it first restores the previous
+pair, then evaluates the requested operation. `--check` never repairs files; it reports
+`recovery-required` when a journal remains. If recovery finds changed, linked or missing artifacts,
+it stops for manual review and retains them. Keep the journal, stage and backup directories in that
+case. This is process-interruption recovery, not a guarantee against power loss or filesystem damage.
+
+The retained `.mastery-tutor-install.lock` file is normal and contains no learning data. Do not delete
+it while an installer is running. Successful replacement backups are retained for your review.
+
+## Portable removal (manual, host-dependent)
+
+There is no automatic portable uninstall command yet. Close the host and run the matching
+`--check` command from the exact release/version that installed this pair. If that release is
+unavailable, ownership cannot be verified: stop. If either tree differs or recovery is required,
+stop and inspect it first.
+For a verified pair, move only the two reported directories (`mastery-coach` and
+`mastery-tool-creator`) to a backup outside all Skill discovery directories. Never remove the
+parent Skills directory or any `.mastery` workspace. Reopen the host and confirm both Skills are
+no longer discovered. Restore the two saved directories to undo removal. Host-specific discovery
+and uninstall remain part of the uncompleted compatibility matrix, not a Verified claim.

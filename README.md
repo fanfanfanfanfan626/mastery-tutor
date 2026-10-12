@@ -8,7 +8,7 @@ your own workspace.
 It ships as one product with two cooperating Skills: `mastery-coach` teaches and tracks learning;
 `mastery-tool-creator` builds the interactive labs a lesson actually needs.
 
-[Try a 3-question lesson — no install](https://fanfanfanfanfan626.github.io/mastery-tutor/demo.html) · [简体中文](README.zh-CN.md) · [AI one-prompt install](AI_INSTALL.md) ·
+[Try a 3-question lesson — no install](https://fanfanfanfanfan626.github.io/mastery-tutor/demo.en.html) · [简体中文](README.zh-CN.md) · [AI one-prompt install](AI_INSTALL.md) ·
 [Manual install](INSTALL.md) · [Compatibility](COMPATIBILITY.md)
 
 [![CI](https://github.com/fanfanfanfanfan626/mastery-tutor/actions/workflows/verify.yml/badge.svg)](https://github.com/fanfanfanfanfan626/mastery-tutor/actions/workflows/verify.yml)
@@ -47,7 +47,7 @@ installed. See [COMPATIBILITY.md](COMPATIBILITY.md) for the evidence behind each
 
 ## Try it
 
-Start with the [browser sample](https://fanfanfanfanfan626.github.io/mastery-tutor/demo.html): distinguish hand-written rules from learned parameters, receive a hint, then try a new context. This is a prepared example, not a live AI service; no account, API key, or answer upload is needed.
+Start with the [browser sample](https://fanfanfanfanfan626.github.io/mastery-tutor/demo.en.html) ([中文](https://fanfanfanfanfan626.github.io/mastery-tutor/demo.html)): distinguish hand-written rules from learned parameters, receive a hint, then try a new context. This is a prepared example, not a live AI service; no account, API key, or answer upload is needed.
 
 Give your AI agent this prompt:
 

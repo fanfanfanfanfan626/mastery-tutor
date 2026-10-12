@@ -22,6 +22,28 @@ def image_dimensions(path: Path) -> tuple[int, int]:
 
 
 class MarketingContractTests(unittest.TestCase):
+    def test_public_docs_do_not_misspell_repository_owner(self) -> None:
+        manifest = json.loads((ROOT / 'plugins/mastery-tutor/.codex-plugin/plugin.json').read_text(encoding='utf-8'))
+        owner = manifest['repository'].split('/')[-2]
+        paths = [ROOT / 'README.md', ROOT / 'README.zh-CN.md', *list((ROOT / 'docs').rglob('*'))]
+        pattern = re.compile(r'https://(?:(?P<pages>(?:fan)+626)\.github\.io|github\.com/(?P<repository>(?:fan)+626))(?=/|\b)')
+        for path in paths:
+            if path.is_file() and path.suffix in {'.md', '.html', '.txt', '.xml'}:
+                for match in pattern.finditer(path.read_text(encoding='utf-8')):
+                    self.assertEqual(match.group('pages') or match.group('repository'), owner, str(path))
+
+    def test_bilingual_sample_has_static_language_and_navigation(self) -> None:
+        for file, language in [('demo.html', 'zh-CN'), ('demo.en.html', 'en')]:
+            html = (ROOT / 'docs' / file).read_text(encoding='utf-8')
+            self.assertIn(f'<html lang="{language}">', html)
+            self.assertIn('hreflang="en"', html)
+            self.assertIn('hreflang="zh-CN"', html)
+            self.assertIn('aria-describedby="feedback"', html)
+            self.assertIn('<noscript>', html)
+            self.assertIn('assets/demo.js', html)
+        readme = (ROOT / 'README.md').read_text(encoding='utf-8')
+        self.assertIn('/demo.en.html', readme)
+
     def test_real_classroom_screenshot_has_bound_reproduction_provenance(self) -> None:
         provenance_path = ROOT / "docs" / "assets" / "classroom-feedback-real.provenance.json"
         provenance = json.loads(provenance_path.read_text(encoding="utf-8"))
@@ -159,7 +181,7 @@ class MarketingContractTests(unittest.TestCase):
         sitemap = ET.parse(ROOT / "docs" / "sitemap.xml")
         namespace = {"s": "http://www.sitemaps.org/schemas/sitemap/0.9"}
         urls = [node.text for node in sitemap.findall("s:url/s:loc", namespace)]
-        self.assertEqual(urls, [site_url, site_url + "demo.html"])
+        self.assertEqual(urls, [site_url, site_url + "demo.html", site_url + "demo.en.html"])
 
         llms = (ROOT / "docs" / "llms.txt").read_text(encoding="utf-8")
         for marker in [

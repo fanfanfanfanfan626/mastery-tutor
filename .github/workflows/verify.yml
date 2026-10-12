@@ -8,6 +8,18 @@ permissions:
   contents: read
 
 jobs:
+  browser-sample:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+      - name: Check prepared lesson and keyboard flow contracts
+        run: |
+          node quality/test_demo.cjs
+          node quality/test_demo_ui.cjs
+
   test:
     strategy:
       fail-fast: false
