@@ -8,6 +8,12 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class CiCompatibilityContractTests(unittest.TestCase):
+    def test_browser_sample_contracts_run_for_every_pr_and_preview(self) -> None:
+        for name in ['verify.yml', 'preview.yml']:
+            workflow = (ROOT / '.github/workflows' / name).read_text(encoding='utf-8')
+            self.assertIn('node quality/test_demo.cjs', workflow)
+            self.assertIn('node quality/test_demo_ui.cjs', workflow)
+
     def test_supported_python_boundaries_and_three_operating_systems_are_exercised(self) -> None:
         workflow = (ROOT / ".github" / "workflows" / "verify.yml").read_text(encoding="utf-8")
         self.assertIn("python-compatibility:", workflow)

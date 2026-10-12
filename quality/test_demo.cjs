@@ -12,4 +12,19 @@ demo.questions.forEach((q, i) => {
 for (const [index, choice] of [[-1,0],[3,0],[0,-1],[0,3],[0,NaN],[0,'0']]) {
   assert.throws(() => demo.check(index, choice), RangeError);
 }
-console.log('Demo: 3 questions, feedback/retry paths and invalid inputs passed.');
+for (const language of ['en', 'zh-CN']) {
+  const lesson = demo.forLanguage(language);
+  assert.equal(lesson.questions.length, 3);
+  for (const [index, q] of lesson.questions.entries()) {
+    assert.equal(q.answer, demo.questions[index].answer);
+    lesson.choices.forEach((_, choice) => {
+      const result = lesson.check(index, choice);
+      assert.equal(result.correct, choice === q.answer);
+      assert.equal(result.message, choice === q.answer ? q.feedback : q.hint);
+    });
+  }
+  assert.throws(() => lesson.check(99, 0), RangeError);
+}
+assert.deepEqual(demo.forLanguage('unknown').choices, demo.choices);
+assert.match(demo.forLanguage('en').progress(2), /Question 2 \/ 3/);
+console.log('Demo: both languages, 3 questions, feedback/retry paths and invalid inputs passed.');

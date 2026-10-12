@@ -1,7 +1,9 @@
 /* Prepared teaching sample. No storage, telemetry, or network requests. */
 'use strict';
 (() => {
-  const engine = window.MasteryDemo;
+  // Keep the readable static lesson when a script is unavailable.
+  if (!window.MasteryDemo) return;
+  const engine = window.MasteryDemo.forLanguage(document.documentElement.lang);
   const form = document.getElementById('demo-form');
   const question = document.getElementById('question');
   const choices = document.getElementById('choices');
@@ -13,7 +15,7 @@
     form.hidden = false; next.hidden = true; restart.hidden = true;
     form.querySelector('button').disabled = false;
     question.textContent = engine.questions[index].text;
-    document.getElementById('step').textContent = `练习 ${index + 1} / ${engine.questions.length}`;
+    document.getElementById('step').textContent = engine.progress(index + 1);
     choices.replaceChildren(); feedback.textContent = '';
     engine.choices.forEach((text, value) => {
       const label = document.createElement('label');
@@ -28,13 +30,15 @@
     const selected = form.querySelector('input:checked');
     if (!selected) return;
     const result = engine.check(index, Number(selected.value));
-    feedback.textContent = (result.correct ? '判断正确。' : '再想一想。') + result.message;
+    feedback.textContent = (result.correct ? engine.correct : engine.retry) + result.message;
     if (result.correct) {
       form.querySelector('button').disabled = true;
       form.querySelectorAll('input').forEach(input => { input.disabled = true; });
       next.hidden = index === engine.questions.length - 1;
       restart.hidden = !next.hidden;
-      if (next.hidden) feedback.textContent += ' 你完成了样例练习；这不是掌握程度认证。';
+      if (next.hidden) feedback.textContent += engine.complete;
+      // Disabling the submitted button must not strand keyboard focus on the body.
+      (next.hidden ? restart : next).focus();
     }
   });
   next.addEventListener('click', () => { index += 1; render(true); });

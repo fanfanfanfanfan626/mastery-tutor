@@ -11,7 +11,7 @@ Languages: English, Simplified Chinese
 
 ## What it does
 
-- Prepared no-install teaching sample (not live AI): https://fanfanfanfanfan626.github.io/mastery-tutor/demo.html
+- Prepared no-install teaching sample (not live AI): https://fanfanfanfanfan626.github.io/mastery-tutor/demo.en.html Chinese sample: https://fanfanfanfanfan626.github.io/mastery-tutor/demo.html
 - Creates guided HTML lessons and local learning workspaces.
 - Uses hands-on practice, independent retrieval, application, transfer checks, and delayed review.
 - Gives staged hints without immediately leaking answers.

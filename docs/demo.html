@@ -6,6 +6,8 @@
   <title>体验 AI 学习的一小课：规则与机器学习 · Mastery Tutor Demo</title>
   <meta name="description" content="无需安装、登录或 API 密钥，体验 Mastery Tutor 的预测、反馈与迁移练习。用三个例子理解手写规则与机器学习的区别。这是预设教学演示，不是实时 AI。">
   <link rel="canonical" href="https://fanfanfanfanfan626.github.io/mastery-tutor/demo.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://fanfanfanfanfan626.github.io/mastery-tutor/demo.html">
+  <link rel="alternate" hreflang="en" href="https://fanfanfanfanfan626.github.io/mastery-tutor/demo.en.html">
   <meta property="og:title" content="先体验一小课，再决定是否安装 · Mastery Tutor">
   <meta property="og:description" content="No-install AI tutor demo: predict, get feedback, transfer. Prepared examples, not a live AI service.">
   <meta property="og:url" content="https://fanfanfanfanfan626.github.io/mastery-tutor/demo.html">
@@ -17,7 +19,7 @@
 <body>
   <a class="skip" href="#lesson">跳到课程</a>
   <main id="lesson">
-    <nav aria-label="导航"><a href="./">← Mastery Tutor</a><a href="#english">English summary</a></nav>
+    <nav aria-label="导航"><a href="./">← Mastery Tutor</a><a href="demo.en.html" lang="en" hreflang="en">English lesson</a></nav>
     <header><p class="eyebrow">3 个问题 · 不用安装 · 不用账号</p><h1>它在执行规则，还是从例子中学习？</h1>
       <p class="lead">先判断，再看反馈，最后换个场景试试。这是 Mastery Tutor 教学循环的一小段。</p>
       <p class="notice">这是预先编写的交互样例，不会调用 AI，不保存答案，不上传你的输入；不代表完整产品或学习效果验证。</p>
@@ -29,12 +31,12 @@
     </section>
     <section aria-labelledby="practice"><h2 id="practice">现在由你判断</h2>
       <noscript><p>交互题需要 JavaScript。你仍可以阅读上面的例子和下方的概念总结。</p></noscript>
-      <p id="step">准备 3 个练习</p>
+      <p id="step">练习加载后将在这里显示；也可以直接阅读本页例子与总结。</p>
       <form id="demo-form" hidden><fieldset><legend id="question"></legend><div id="choices"></div></fieldset>
         <button type="submit">检查这个判断</button></form>
       <p id="feedback" role="status" aria-live="polite"></p>
-      <button id="next" type="button" hidden>换一个场景</button>
-      <button id="restart" type="button" hidden>重新练习</button>
+      <button id="next" type="button" aria-describedby="feedback" hidden>换一个场景</button>
+      <button id="restart" type="button" aria-describedby="feedback" hidden>重新练习</button>
     </section>
     <section><h2>带走一个判断方法</h2><p>问：“系统的判断方式怎样产生？”人直接指定的是规则；通过样本调整参数的是学习。实际产品可能同时使用两种方式。</p>
       <p>答对这三个预设问题不能证明掌握。真正的导师还需要新情境、独立解释和间隔复习，而不是只记录一次正确答案。</p>

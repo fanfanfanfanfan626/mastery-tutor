@@ -9,11 +9,11 @@ import json
 import os
 import shutil
 import stat
-import tempfile
 import uuid
-from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+
+from install_transaction import JOURNAL, LOCK, InstallBusyError, RecoveryError, exists, installation_lock, recover, transaction_paths, write_journal
 
 
 ROOT = Path(__file__).resolve().parent
@@ -148,11 +148,39 @@ def copy_source(source: Path, destination: Path) -> None:
 def install_bundle(
     sources: list[tuple[str, Path]], target_root: Path, *, check: bool, replace: bool
 ) -> dict[str, Any]:
+    # Validate source trees before creating even the lock directory. --check is read-only.
+    for _, source in sources:
+        tree_digest(source)
+    try:
+        with installation_lock(target_root, create=not check) as locked:
+            if check:
+                if exists(target_root / JOURNAL):
+                    return {'ok': False, 'status': 'recovery-required', 'target': str(target_root),
+                            'message': 'Close the host and rerun the install command without --check to recover.'}
+                report = _install_bundle(sources, target_root, check=True, replace=False)
+                if not locked and (exists(target_root / LOCK) or exists(target_root / JOURNAL)):
+                    return {'ok': False, 'status': 'busy', 'target': str(target_root), 'message': 'Installation started during check; retry.'}
+                return report
+            try:
+                recovered = recover(target_root, {name for name, _ in sources}, tree_digest)
+            except (RecoveryError, SystemExit, OSError) as error:
+                return {'ok': False, 'status': 'recovery-blocked', 'target': str(target_root), 'message': str(error)}
+            report = _install_bundle(sources, target_root, check=False, replace=replace)
+            if recovered:
+                report['recovered_interrupted_install'] = True
+            return report
+    except InstallBusyError as error:
+        return {'ok': False, 'status': 'busy', 'target': str(target_root), 'message': str(error)}
+
+
+def _install_bundle(
+    sources: list[tuple[str, Path]], target_root: Path, *, check: bool, replace: bool
+) -> dict[str, Any]:
     expected = {name: tree_digest(source) for name, source in sources}
     existing: dict[str, str | None] = {}
     for name, _ in sources:
         target = target_root / name
-        if not target.exists():
+        if not exists(target):
             existing[name] = None
         elif not target.is_dir() or is_reparse_point(target):
             existing[name] = "invalid-existing-path"
@@ -172,6 +200,10 @@ def install_bundle(
         ]
         return {"ok": all(item["status"] == "verified" for item in statuses), "status": "verified" if all(item["status"] == "verified" for item in statuses) else "not-verified", "target": str(target_root), "skills": statuses}
 
+    if 'invalid-existing-path' in existing.values():
+        return {'ok': False, 'status': 'unsafe-target', 'target': str(target_root),
+                'message': 'A Skill path is a link or is not a directory; --replace cannot override it.'}
+
     conflicts = [str(target_root / name) for name, _ in sources if existing[name] not in (None, expected[name])]
     if conflicts and not replace:
         return {"ok": False, "status": "conflict", "target": str(target_root), "conflicts": conflicts, "message": "Existing Skill directories differ. Report them and obtain approval before rerunning with --replace."}
@@ -181,11 +213,10 @@ def install_bundle(
     pending = {name for name, _ in sources if existing[name] != expected[name]}
     target_root.parent.mkdir(parents=True, exist_ok=True)
     target_root.mkdir(parents=True, exist_ok=True)
-    stage = Path(tempfile.mkdtemp(prefix=".mastery-tutor-stage-", dir=target_root.parent))
-    timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-    backup = target_root.parent / f".mastery-tutor-backup-{timestamp}-{uuid.uuid4().hex[:8]}"
-    moved_old: list[tuple[Path, Path]] = []
-    installed: list[Path] = []
+    identifier = uuid.uuid4().hex
+    stage, backup = transaction_paths(target_root, identifier)
+    stage.mkdir()
+    journal_created = False
     try:
         for name, source in sources:
             if name not in pending:
@@ -194,6 +225,11 @@ def install_bundle(
             copy_source(source, staged)
             if tree_digest(staged) != expected[name]:
                 raise SystemExit(f"Staged Skill bytes differ from source: {name}")
+        write_journal(target_root, {'version': 1, 'id': identifier, 'skills': [
+            {'name': name, 'old': existing[name], 'new': expected[name]}
+            for name, _ in sources
+        ]})
+        journal_created = True
         for name, _ in sources:
             if name not in pending:
                 continue
@@ -202,32 +238,30 @@ def install_bundle(
                 backup_target = backup / name
                 backup.mkdir(parents=True, exist_ok=True)
                 os.replace(target, backup_target)
-                moved_old.append((backup_target, target))
         for name, _ in sources:
             if name not in pending:
                 continue
             target = target_root / name
             os.replace(stage / name, target)
-            installed.append(target)
         for name, _ in sources:
             if tree_digest(target_root / name) != expected[name]:
                 raise SystemExit(f"Installed Skill bytes differ from source: {name}")
+        (target_root / JOURNAL).unlink()
     except BaseException:
-        for target in reversed(installed):
-            if target.exists():
-                os.replace(target, stage / target.name)
-        for backup_target, target in reversed(moved_old):
-            if backup_target.exists():
-                os.replace(backup_target, target)
+        if journal_created:
+            recover(target_root, {name for name, _ in sources}, tree_digest)
+        elif not exists(target_root / JOURNAL):
+            shutil.rmtree(stage)
+        # A failed rollback leaves its journal and artifacts intact for safe recovery.
         raise
-    finally:
-        shutil.rmtree(stage, ignore_errors=True)
+    if stage.is_dir():
+        stage.rmdir()
 
     return {
         "ok": True,
         "status": "installed",
         "target": str(target_root),
-        "backup": str(backup) if moved_old else None,
+        "backup": str(backup) if backup.exists() else None,
         "skills": [{"name": name, "path": str(target_root / name), "sha256": expected[name]} for name, _ in sources],
     }
 
@@ -250,7 +284,7 @@ def main() -> None:
     target = resolve_target(args)
     report = install_bundle(sources, target, check=args.check, replace=args.replace)
     report.update({"host": args.host, "scope": args.scope, "skill_set": manifest["name"], "version": manifest["version"]})
-    print(json.dumps(report, ensure_ascii=False, indent=2))
+    print(json.dumps(report, ensure_ascii=True, indent=2))
     raise SystemExit(0 if report["ok"] else 1)
 
 

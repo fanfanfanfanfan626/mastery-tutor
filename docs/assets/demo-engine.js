@@ -11,7 +11,31 @@
     const item = questions[index];
     return {correct:choice === item.answer, message:choice === item.answer ? item.feedback : item.hint};
   }
-  const api = {choices, questions, check};
+  const englishChoices = ['Rules specified by people', 'Parameters learned from examples', 'Not enough information'];
+  const englishQuestions = [
+    {text:'An alarm is programmed to sound when the temperature exceeds 80°C. How was its decision made?',answer:0,feedback:'A person explicitly specified the condition. This is a rule-based system, even if the alarm is very accurate.',hint:'Look at how the condition was created, not whether a computer is involved.'},
+    {text:'Researchers train a model on images labeled “cat” or “dog”, adjusting its parameters. It then classifies new images.',answer:1,feedback:'The parameters were fitted using training examples. You have transferred the distinction from email to images.',hint:'Notice “adjusting its parameters” using labeled examples. Is that the same as directly specifying a condition?'},
+    {text:'Someone says only: “This software detects defects with 99% accuracy.” Can you tell whether it uses machine learning?',answer:2,feedback:'No. Accuracy describes performance, not how the decision process was created. Ask about the rules, training data, and parameter fitting.',hint:'Does a performance number explain how the system obtained its decision process?'}
+  ];
+  // Both pages share behavior; translations must preserve the same answer contract.
+  function forLanguage(language) {
+    const english = language === 'en';
+    const selectedQuestions = english ? englishQuestions : questions;
+    return {
+      choices: english ? englishChoices : choices,
+      questions: selectedQuestions,
+      check(index, choice) {
+        const result = check(index, choice);
+        const item = selectedQuestions[index];
+        return {correct: result.correct, message: result.correct ? item.feedback : item.hint};
+      },
+      progress: (current) => english ? `Question ${current} / ${questions.length}` : `练习 ${current} / ${questions.length}`,
+      correct: english ? 'Correct. ' : '判断正确。',
+      retry: english ? 'Try again. ' : '再想一想。',
+      complete: english ? ' You completed the sample; this is not a mastery certification.' : ' 你完成了样例练习；这不是掌握程度认证。'
+    };
+  }
+  const api = {choices, questions, check, forLanguage};
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.MasteryDemo = api;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

@@ -42,6 +42,7 @@ jobs:
           python quality/eval_audit.py suite quality/evals/plugin-evals.json
           python -m unittest discover -s quality -p "test_*.py" -q
           node quality/test_demo.cjs
+          node quality/test_demo_ui.cjs
       - name: Build and audit candidates
         run: |
           python quality/build_release.py --kind core --output work/candidates/core.zip

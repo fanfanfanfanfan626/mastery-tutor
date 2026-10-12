@@ -2,6 +2,11 @@
 
 ## 0.5.0 — unreleased
 
+- Portable installation now emits lossless JSON in legacy consoles and recovers interrupted
+  replacements on retry, with target-scoped advisory locking and conservative artifact checks.
+  Close the host during installation; this does not provide atomic pair visibility or power-loss guarantees.
+- Added a full English prepared lesson, explicit bilingual links, keyboard focus handoff and
+  everyday CI coverage for retry, completion, restart and missing-script behavior.
 - Engineering preview channel keeps stable E2 evidence requirements intact and publishes audited, reproducible trial archives separately from stable releases.
 - Added a no-install, no-tracking teaching sample with retry feedback and a transfer check, plus bilingual first-use feedback entry points.
 - Renamed the product and Codex plugin identity to **Mastery Tutor** / `mastery-tutor` while
