@@ -88,7 +88,7 @@ jobs:
             python quality/build_release.py --kind "$kind" --output "work/mastery-tutor-${tag}-${kind}.zip" --checksum-output "work/mastery-tutor-${tag}-${kind}.zip.sha256"
             python quality/release_audit.py archive "work/mastery-tutor-${tag}-${kind}.zip" --kind "$kind" --git-ref HEAD --expected-version "$version"
           done
-      - uses: actions/attest-build-provenance@v2
+      - uses: actions/attest-build-provenance@v4
         with:
           subject-path: work/mastery-tutor-preview-*.zip
       - name: Publish engineering preview, never latest stable
