@@ -1,5 +1,7 @@
 # Install Mastery Tutor
 
+Codex: the default installer registers the marketplace, then asks you to install and enable Mastery Tutor in the desktop Plugins Directory. Exit code 2 / `registered-awaiting-ui-install` means this step is still needed. Rerun afterward to verify. Marketplace registration alone is not successful installation. See the [exact Codex workflow](docs/install/codex.md).
+
 Mastery Tutor contains two canonical Agent Skills. Choose the host you are actually using:
 
 | Host | Status | Instructions |

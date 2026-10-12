@@ -4,12 +4,14 @@
 
 Canonical repository: https://github.com/fanfanfanfanfan626/mastery-tutor
 Source version: 0.5.0 release candidate
-Latest tagged release: 0.4.1 under the former Mastery Learning identity
+Latest stable release: 0.4.1 under the former Mastery Learning identity
+Engineering previews: check published entries at https://github.com/fanfanfanfanfan626/mastery-tutor/releases ; E2 pending, not stable
 License: MIT
 Languages: English, Simplified Chinese
 
 ## What it does
 
+- Prepared no-install teaching sample (not live AI): https://fanfanfanfanfan626.github.io/mastery-tutor/demo.html
 - Creates guided HTML lessons and local learning workspaces.
 - Uses hands-on practice, independent retrieval, application, transfer checks, and delayed review.
 - Gives staged hints without immediately leaking answers.

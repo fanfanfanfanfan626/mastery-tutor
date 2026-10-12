@@ -8,15 +8,15 @@ your own workspace.
 It ships as one product with two cooperating Skills: `mastery-coach` teaches and tracks learning;
 `mastery-tool-creator` builds the interactive labs a lesson actually needs.
 
-[Website](https://fanfanfanfanfan626.github.io/mastery-tutor/) · [简体中文](README.zh-CN.md) · [AI one-prompt install](AI_INSTALL.md) ·
+[Try a 3-question lesson — no install](https://fanfanfanfanfan626.github.io/mastery-tutor/demo.html) · [简体中文](README.zh-CN.md) · [AI one-prompt install](AI_INSTALL.md) ·
 [Manual install](INSTALL.md) · [Compatibility](COMPATIBILITY.md)
 
 [![CI](https://github.com/fanfanfanfanfan626/mastery-tutor/actions/workflows/verify.yml/badge.svg)](https://github.com/fanfanfanfanfan626/mastery-tutor/actions/workflows/verify.yml)
 [![Release](https://img.shields.io/github/v/release/fanfanfanfanfan626/mastery-tutor?label=release)](https://github.com/fanfanfanfanfan626/mastery-tutor/releases)
 
-> **Release status:** `main` is the next release candidate. The latest published package still uses
-> the legacy Mastery Learning identity; do not describe `main` as a released adapter until the E2
-> evidence gate and tagged release workflow pass.
+> **Release status:** `main` is the next release candidate. Engineering previews will appear on [Releases](https://github.com/fanfanfanfanfan626/mastery-tutor/releases)
+> after their verification workflow passes. The latest stable remains v0.4.1 (legacy Mastery Learning).
+> Preview packages are not stable releases or proof of fresh-conversation behavior.
 > Current evidence levels and promotion criteria are documented in [COMPATIBILITY.md](COMPATIBILITY.md).
 
 ![Real Mastery Tutor feedback classroom](docs/assets/classroom-feedback-real.png)
@@ -46,6 +46,8 @@ E2 claim about fresh AI conversations. “Core-compatible” means the two Skill
 installed. See [COMPATIBILITY.md](COMPATIBILITY.md) for the evidence behind each label.
 
 ## Try it
+
+Start with the [browser sample](https://fanfanfanfanfan626.github.io/mastery-tutor/demo.html): distinguish hand-written rules from learned parameters, receive a hint, then try a new context. This is a prepared example, not a live AI service; no account, API key, or answer upload is needed.
 
 Give your AI agent this prompt:
 

@@ -1,0 +1,21 @@
+name: First-use feedback / 首次使用反馈
+description: Tell us where the first lesson or installation worked or got stuck.
+title: "[First use] "
+body:
+  - type: markdown
+    attributes:
+      value: "Please do not attach private learning records, credentials, or personal data. A short description is enough. 请不要上传个人学习记录、密钥或隐私信息。"
+  - type: dropdown
+    id: entry
+    attributes:
+      label: What did you try? / 试用了什么？
+      options: [Browser demo, Codex plugin, Claude Code, GitHub Copilot, Other Agent Skills host]
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: What happened? / 结果怎么样？
+      description: Your goal, the first step that worked or failed, and what you expected. Include host/version if relevant.
+    validations:
+      required: true

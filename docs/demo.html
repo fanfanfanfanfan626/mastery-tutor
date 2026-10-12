@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>体验 AI 学习的一小课：规则与机器学习 · Mastery Tutor Demo</title>
+  <meta name="description" content="无需安装、登录或 API 密钥，体验 Mastery Tutor 的预测、反馈与迁移练习。用三个例子理解手写规则与机器学习的区别。这是预设教学演示，不是实时 AI。">
+  <link rel="canonical" href="https://fanfanfanfanfan626.github.io/mastery-tutor/demo.html">
+  <meta property="og:title" content="先体验一小课，再决定是否安装 · Mastery Tutor">
+  <meta property="og:description" content="No-install AI tutor demo: predict, get feedback, transfer. Prepared examples, not a live AI service.">
+  <meta property="og:url" content="https://fanfanfanfanfan626.github.io/mastery-tutor/demo.html">
+  <meta property="og:type" content="website">
+  <link rel="stylesheet" href="assets/demo.css">
+  <script src="assets/demo-engine.js" defer></script>
+  <script src="assets/demo.js" defer></script>
+</head>
+<body>
+  <a class="skip" href="#lesson">跳到课程</a>
+  <main id="lesson">
+    <nav aria-label="导航"><a href="./">← Mastery Tutor</a><a href="#english">English summary</a></nav>
+    <header><p class="eyebrow">3 个问题 · 不用安装 · 不用账号</p><h1>它在执行规则，还是从例子中学习？</h1>
+      <p class="lead">先判断，再看反馈，最后换个场景试试。这是 Mastery Tutor 教学循环的一小段。</p>
+      <p class="notice">这是预先编写的交互样例，不会调用 AI，不保存答案，不上传你的输入；不代表完整产品或学习效果验证。</p>
+    </header>
+    <section aria-labelledby="example"><h2 id="example">先看一对例子</h2>
+      <div class="pair"><article><h3>规则筛选器</h3><p>程序员写下：“邮件里出现‘免费中奖’，就标为可疑。”判断标准直接由人指定。</p></article>
+      <article><h3>学习型筛选器</h3><p>给模型许多已标注的正常邮件和垃圾邮件，让它调整参数，学习哪些特征有助于分类。</p></article></div>
+      <p>区别不在于软件是否复杂、是否用 Python，甚至不在于准确率高低。关键是：<strong>判定规则由人直接写下，还是参数从数据中学来？</strong></p>
+    </section>
+    <section aria-labelledby="practice"><h2 id="practice">现在由你判断</h2>
+      <noscript><p>交互题需要 JavaScript。你仍可以阅读上面的例子和下方的概念总结。</p></noscript>
+      <p id="step">准备 3 个练习</p>
+      <form id="demo-form" hidden><fieldset><legend id="question"></legend><div id="choices"></div></fieldset>
+        <button type="submit">检查这个判断</button></form>
+      <p id="feedback" role="status" aria-live="polite"></p>
+      <button id="next" type="button" hidden>换一个场景</button>
+      <button id="restart" type="button" hidden>重新练习</button>
+    </section>
+    <section><h2>带走一个判断方法</h2><p>问：“系统的判断方式怎样产生？”人直接指定的是规则；通过样本调整参数的是学习。实际产品可能同时使用两种方式。</p>
+      <p>答对这三个预设问题不能证明掌握。真正的导师还需要新情境、独立解释和间隔复习，而不是只记录一次正确答案。</p>
+    </section>
+    <section id="english" lang="en"><h2>The idea, in English</h2><p>A rule-based system follows decision rules specified by people. A learned model fits parameters from examples. Accuracy, complexity, and programming language alone do not distinguish them. Real applications can combine both.</p><p>This prepared three-question demo illustrates prediction, feedback, and transfer. It is not a live AI tutor, does not grade mastery, and does not store or send answers.</p></section>
+    <section><h2>想让自己的 AI 这样教？</h2><p>完整产品需要支持 Agent Skills 的宿主。Codex 使用插件；其他支持的宿主安装两个配套 Skill。宿主能力与验证程度不同，请先看兼容表。</p>
+      <div class="actions"><a class="button" href="https://github.com/fanfanfanfanfan626/mastery-tutor/blob/main/AI_INSTALL.md">安装说明 / Install</a><a href="https://github.com/fanfanfanfanfan626/mastery-tutor/blob/main/COMPATIBILITY.md">兼容状态</a><a href="https://github.com/fanfanfanfanfan626/mastery-tutor/issues/new?template=first-use.yml">反馈首次体验</a></div>
+    </section>
+    <footer>MIT · <a href="https://github.com/fanfanfanfanfan626/mastery-tutor/blob/main/docs/demo.html">查看演示源码</a> · 没有分析追踪脚本</footer>
+  </main>
+</body>
+</html>

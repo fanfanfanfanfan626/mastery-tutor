@@ -1,6 +1,7 @@
 [CmdletBinding()]
 param(
     [switch]$CheckOnly,
+    [switch]$UseCliInstall,
     [string]$CodexCommand = "codex"
 )
 
@@ -194,7 +195,7 @@ if ($ExistingPluginListResult.ExitCode -ne 0) {
 }
 $ExistingPluginList = $ExistingPluginListResult.Output
 $ExistingPluginListText = $ExistingPluginList -join [Environment]::NewLine
-if ($ExistingPluginListText -match '(?im)(^|\s)mastery-learning(\s|$)') {
+if ($ExistingPluginListText -match '(?im)^\s*mastery-learning(?:@\S+)?\s+') {
     throw @"
 MASTERY_INSTALL_STATUS=blocked
 MASTERY_BLOCKER=legacy-plugin-installed
@@ -205,14 +206,46 @@ installer. Never delete .mastery learner data during the product rename.
 "@
 }
 
-try {
-    $MarketplaceAddResult = Invoke-CodexCapture -Command $CodexCommand -Arguments @("plugin", "marketplace", "add", $RepositoryRoot)
-} catch {
-    throw "Could not launch the Codex CLI for marketplace registration. Do not use skill-installer as a fallback. $($_.Exception.Message)"
+function Read-MarketplaceSource {
+    $Result = Invoke-CodexCapture -Command $CodexCommand -Arguments @('plugin', 'marketplace', 'list')
+    if ($Result.ExitCode -ne 0) { throw 'Could not inspect marketplace sources. No source was replaced.' }
+    foreach ($Line in $Result.Output) {
+        if ($Line -match '^\s*mastery-tutor\s+(.+?)\s*$') { return $Matches[1] }
+    }
+    return $null
 }
-$MarketplaceAddResult.Output | Write-Output
-if ($MarketplaceAddResult.ExitCode -ne 0) {
-    throw "Codex marketplace registration failed with exit code $($MarketplaceAddResult.ExitCode). The plugin was not installed."
+
+$Source = Read-MarketplaceSource
+if ($Source) {
+    if (-not [string]::Equals([IO.Path]::GetFullPath($Source).TrimEnd('\','/'), $RepositoryRoot.TrimEnd('\','/'), [StringComparison]::OrdinalIgnoreCase)) {
+        throw "MASTERY_BLOCKER=marketplace-source-conflict`nRegistered: $Source`nRequested: $RepositoryRoot`nNo source was replaced. Ask the user which source to keep."
+    }
+} else {
+    $Added = Invoke-CodexCapture -Command $CodexCommand -Arguments @('plugin', 'marketplace', 'add', $RepositoryRoot)
+    if ($Added.ExitCode -ne 0) { throw 'Marketplace registration failed; the plugin was not installed.' }
+    $Source = Read-MarketplaceSource
+    if (-not $Source -or -not [string]::Equals([IO.Path]::GetFullPath($Source).TrimEnd('\','/'), $RepositoryRoot.TrimEnd('\','/'), [StringComparison]::OrdinalIgnoreCase)) {
+        throw 'Registration may be present, but exact-source verification failed. Inspect codex plugin marketplace list before retrying. No plugin installation was attempted.'
+    }
+}
+
+$Observed = Invoke-CodexCapture -Command $CodexCommand -Arguments @('plugin', 'list', '--marketplace', 'mastery-tutor')
+if ($Observed.ExitCode -ne 0) { throw 'Marketplace is registered, but installed plugin state could not be inspected.' }
+if (($Observed.Output -join "`n") -match '(?im)^\s*mastery-tutor@mastery-tutor\s+installed,\s*enabled(?:\s|$)') {
+    Write-Output 'MASTERY_INSTALL_STATUS=installed'
+    Write-Output 'Installed and enabled. No configuration change needed. Open a new Codex task.'
+    exit 0
+}
+if (-not $UseCliInstall) {
+    Write-Output 'MASTERY_INSTALL_STATUS=registered-awaiting-ui-install'
+    Write-Output 'Open the desktop Plugins Directory, install and enable Mastery Tutor from its marketplace, then rerun this script to verify. Registration is not installation.'
+    Write-Output 'Official flow: https://developers.openai.com/plugins/build/plugins'
+    Write-Output 'If explicitly requested and supported by this CLI, -UseCliInstall enables the compatibility installation path.'
+    exit 2
+}
+$AddHelp = Invoke-CodexCapture -Command $CodexCommand -Arguments @('plugin', 'add', '--help')
+if ($AddHelp.ExitCode -ne 0 -or ($AddHelp.Output -join "`n") -notmatch 'Usage:\s+codex plugin add') {
+    throw 'Compatibility plugin add command unavailable. Use the Plugins Directory. Marketplace remains registered.'
 }
 
 try {
@@ -226,7 +259,7 @@ if ($PluginAddResult.ExitCode -ne 0) {
 }
 
 try {
-    $PluginListResult = Invoke-CodexCapture -Command $CodexCommand -Arguments @("plugin", "list")
+    $PluginListResult = Invoke-CodexCapture -Command $CodexCommand -Arguments @("plugin", "list", "--marketplace", "mastery-tutor")
 } catch {
     throw "The plugin command completed, but installation verification could not run. $($_.Exception.Message)"
 }
@@ -235,9 +268,10 @@ if ($PluginListResult.ExitCode -ne 0) {
 }
 $PluginList = $PluginListResult.Output
 $PluginListText = $PluginList -join [Environment]::NewLine
-if ($PluginListText -notmatch '(?im)mastery-tutor') {
+if ($PluginListText -notmatch '(?im)^\s*mastery-tutor@mastery-tutor\s+installed,\s*enabled(?:\s|$)') {
     throw "Installation verification failed: 'codex plugin list' did not contain mastery-tutor."
 }
 
 Write-Output $PluginListText
+Write-Output 'MASTERY_INSTALL_STATUS=installed'
 Write-Output "Installed and verified mastery-tutor as a complete Codex plugin. Open a new Codex task to load both bundled Skills."
